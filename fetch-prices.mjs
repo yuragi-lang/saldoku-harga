@@ -8,23 +8,40 @@ const prices = { ...(old.prices || {}) };
 const sources = { ...(old.sources || {}) };
 const now = new Date().toISOString();
 
-async function getJson(url) {
-  const res = await fetch(url, { headers: { 'user-agent': 'saldoku-harga-bot' }, signal: AbortSignal.timeout(20000) });
+async function getJson(url, browserLike = false) {
+  const headers = browserLike
+    ? { 'user-agent': 'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126 Mobile Safari/537.36', accept: 'application/json' }
+    : { 'user-agent': 'saldoku-harga-bot', accept: 'application/json' };
+  const res = await fetch(url, { headers, signal: AbortSignal.timeout(20000) });
   if (!res.ok) throw new Error(`${url} -> HTTP ${res.status}`);
   return res.json();
 }
 
-// Kripto: Indodax (harga terakhir dalam Rupiah)
+// Kripto: Indodax dulu (harga Rupiah lokal), CoinGecko sebagai cadangan
+const GECKO_IDS = { BTC: 'bitcoin', ETH: 'ethereum', USDT: 'tether', SOL: 'solana', BNB: 'binancecoin', XRP: 'ripple', DOGE: 'dogecoin', ADA: 'cardano', TRX: 'tron', USDC: 'usd-coin' };
+let cryptoOk = false;
 try {
-  const data = await getJson('https://indodax.com/api/ticker_all');
+  const data = await getJson('https://indodax.com/api/ticker_all', true);
   for (const sym of COINS) {
-    const t = data?.tickers?.[`${sym.toLowerCase()}_idr`];
-    const v = Number(t?.last);
-    if (v > 0) prices[sym] = v;
+    const v = Number(data?.tickers?.[`${sym.toLowerCase()}_idr`]?.last);
+    if (v > 0) { prices[sym] = v; cryptoOk = true; }
   }
-  sources.crypto = { name: 'Indodax', at: now };
+  if (cryptoOk) sources.crypto = { name: 'Indodax', at: now };
 } catch (e) {
-  console.error('Kripto gagal:', e.message);
+  console.error('Indodax gagal:', e.message);
+}
+if (!cryptoOk) {
+  try {
+    const ids = Object.values(GECKO_IDS).join(',');
+    const data = await getJson(`https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=idr`);
+    for (const [sym, id] of Object.entries(GECKO_IDS)) {
+      const v = Number(data?.[id]?.idr);
+      if (v > 0) { prices[sym] = v; cryptoOk = true; }
+    }
+    if (cryptoOk) sources.crypto = { name: 'CoinGecko', at: now };
+  } catch (e) {
+    console.error('CoinGecko gagal:', e.message);
+  }
 }
 
 // Emas: harga emas dunia per gram dalam Rupiah (acuan, bukan harga butik Antam)
