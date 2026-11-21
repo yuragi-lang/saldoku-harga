@@ -1,0 +1,30 @@
+name: Perbarui harga
+
+on:
+  schedule:
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-prices
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Ambil harga
+        run: node fetch-prices.mjs
+      - name: Simpan kalau ada perubahan
+        run: |
+          git config user.name "saldoku-harga-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add prices.json
+          git diff --cached --quiet || (git commit -m "Harga $(date -u +%Y-%m-%dT%H:%MZ)" && git push)
