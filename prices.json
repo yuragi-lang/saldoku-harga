@@ -1,5 +1,12 @@
 {
-  "updatedAt": null,
-  "prices": {},
-  "sources": {}
+  "updatedAt": "2026-11-21T11:42:37.048Z",
+  "prices": {
+    "XAU": 2077881
+  },
+  "sources": {
+    "gold": {
+      "name": "Harga emas dunia (xaus.com), per gram",
+      "at": "2026-11-21T11:42:37.048Z"
+    }
+  }
 }
