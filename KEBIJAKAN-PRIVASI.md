@@ -23,8 +23,9 @@ Atsume menyimpan apa yang kamu catat: dompet dan saldo, transaksi, tagihan, cici
 Atsume hanya terhubung ke internet untuk:
 
 1. **Harga kripto dan emas (fitur Premium).** Aplikasi mengunduh daftar harga dari `raw.githubusercontent.com` (GitHub). Yang diunduh hanya harga; tidak ada data milikmu yang dikirim. Seperti semua situs web, GitHub dapat mencatat alamat IP yang mengakses berkasnya.
-2. **Pengenal suara (jika kamu memakai fitur catat pakai suara)**. Lihat bagian Mikrofon di bawah.
-3. **Pembayaran Premium** diproses oleh Google Play sesuai kebijakan privasi Google. Atsume tidak menerima data kartu atau rekeningmu.
+2. **Daftar koin kripto.** Saat kamu mencari koin, aplikasi mengunduh daftar nama koin dari GitHub. Tidak ada data milikmu yang dikirim.
+3. **Pengenal suara (jika kamu memakai fitur catat pakai suara)**. Lihat bagian Mikrofon di bawah.
+4. **Pembayaran Premium** diproses oleh Google Play sesuai kebijakan privasi Google. Atsume tidak menerima data kartu atau rekeningmu.
 
 ## Mikrofon
 
