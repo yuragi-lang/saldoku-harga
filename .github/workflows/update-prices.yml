@@ -26,5 +26,5 @@ jobs:
         run: |
           git config user.name "saldoku-harga-bot"
           git config user.email "bot@users.noreply.github.com"
-          git add prices.json
+          git add prices.json coins.json
           git diff --cached --quiet || (git commit -m "Harga $(date -u +%Y-%m-%dT%H:%MZ)" && git push)
