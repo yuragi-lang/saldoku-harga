@@ -1,0 +1,36 @@
+name: Bersihkan riwayat
+
+# Sebulan sekali semua commit harga otomatis dipadatkan jadi satu commit,
+# supaya repo tidak terus membesar. Isi file saat ini tetap sama.
+on:
+  schedule:
+    - cron: '0 3 1 * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+# Antre bersama pembaruan harga agar tidak bentrok.
+concurrency:
+  group: update-prices
+  cancel-in-progress: false
+
+jobs:
+  reset:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Padatkan commit harga
+        run: |
+          git config user.name "saldoku-harga-bot"
+          git config user.email "bot@users.noreply.github.com"
+          # Commit kode terakhir (bukan commit harga otomatis) jadi pijakan.
+          base=$(git log --format='%H%x09%s' | grep -v -P '\t(Harga |Harga terpadatkan)' | head -1 | cut -f1)
+          count=$(git rev-list --count "$base"..HEAD)
+          echo "Commit harga sejak pijakan: $count"
+          if [ "$count" -le 1 ]; then exit 0; fi
+          git reset --soft "$base"
+          git commit -m "Harga terpadatkan $(date -u +%Y-%m-%d)"
+          git push --force-with-lease origin HEAD:main
